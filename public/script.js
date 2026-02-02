@@ -1,21 +1,23 @@
-const socket = io(); // Connect to server (use your Railway URL in production)
+const socket = io('https://dget-production.up.railway.app');  // ← Replace with YOUR exact Railway URL if different!
+
 const messagesDiv = document.getElementById('messages');
+const joinSection = document.getElementById('join-section');
+const inputSection = document.getElementById('input-section');
 const usernameInput = document.getElementById('username');
 const messageInput = document.getElementById('message');
-const sendBtn = document.querySelector('button[onclick="sendMessage()"]');
-const joinBtn = document.querySelector('button[onclick="joinChat()"]');
+const joinBtn = document.getElementById('join-btn');
+const sendBtn = document.getElementById('send-btn');
 const onlineCount = document.getElementById('online-count');
 
 function joinChat() {
   const username = usernameInput.value.trim();
-  if (username) {
-    socket.emit('join', { username });
-    usernameInput.style.display = 'none';
-    joinBtn.style.display = 'none';
-    messageInput.style.display = 'block';
-    sendBtn.style.display = 'block';
-  }
+  if (!username) return alert('Enter a username!');
+  
+  socket.emit('join', { username });
 }
+
+joinBtn.addEventListener('click', joinChat);
+usernameInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') joinChat(); });
 
 function sendMessage() {
   const text = messageInput.value.trim();
@@ -25,32 +27,44 @@ function sendMessage() {
   }
 }
 
+sendBtn.addEventListener('click', sendMessage);
+messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+
+socket.on('join_success', () => {  // We'll add this emit on server later if needed
+  joinSection.style.display = 'none';
+  inputSection.style.display = 'flex';
+});
+
+socket.on('error', (err) => alert(err));
+
 socket.on('message', (msg) => {
-  const p = document.createElement('p');
-  p.classList.add('message');
-  if (msg.isPinned) p.classList.add('pinned');
+  const div = document.createElement('div');
+  div.classList.add('message');
+  if (msg.isPinned) div.classList.add('pinned');
+  
   const userSpan = document.createElement('span');
   userSpan.classList.add('username');
   userSpan.style.color = msg.color;
   userSpan.textContent = msg.user;
   if (msg.isOwner) userSpan.classList.add('owner-badge');
-  p.appendChild(userSpan);
-  p.innerHTML += `: ${msg.text} <small>(${msg.time})</small>`;
-  messagesDiv.appendChild(p);
-  twemoji.parse(p); // Render emojis like Discord
+  
+  div.appendChild(userSpan);
+  div.innerHTML += `: ${msg.text} <span class="time">(${msg.time})</span>`;
+  messagesDiv.appendChild(div);
+  twemoji.parse(div);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 });
 
 socket.on('messages', (allMsgs) => {
   messagesDiv.innerHTML = '';
-  allMsgs.forEach(msg => socket.emit('message', msg)); // Re-render
+  allMsgs.forEach(m => socket.emit('message', m));  // Re-render
 });
 
 socket.on('systemMessage', (text) => {
-  const p = document.createElement('p');
-  p.textContent = `System: ${text}`;
-  p.style.color = 'gray';
-  messagesDiv.appendChild(p);
+  const div = document.createElement('div');
+  div.classList.add('system');
+  div.textContent = text;
+  messagesDiv.appendChild(div);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 });
 
@@ -58,6 +72,7 @@ socket.on('onlineCount', (count) => {
   onlineCount.textContent = `Online: ${count}`;
 });
 
-socket.on('error', (err) => alert(err));
-socket.on('banned', () => alert('You are banned!'));
-// For owner: Add buttons/forms for pin/mute/ban/delete in HTML if needed, then socket.emit('pinMessage', id); etc.
+socket.on('banned', () => {
+  alert('You have been banned!');
+  location.reload();
+});
