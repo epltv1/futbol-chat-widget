@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Futbol Chat Widget</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="chat-widget">
+    <div id="chat-header">
+      <span>Futbol Chat ⚽</span>
+      <span id="online-count">Online: 0</span>
+    </div>
+    <div id="messages"></div>
+    <input id="username" placeholder="Enter username..." />
+    <button onclick="joinChat()">Join</button>
+    <input id="message" placeholder="Type message... (supports emojis 😎)" style="display:none;" />
+    <button onclick="sendMessage()" style="display:none;">Send</button>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
