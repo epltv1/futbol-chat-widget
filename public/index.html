@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Futbol Chat Widget</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Futbol Chat</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"> <!-- Modern font like your site -->
 </head>
 <body>
   <div id="chat-widget">
@@ -12,10 +14,18 @@
       <span id="online-count">Online: 0</span>
     </div>
     <div id="messages"></div>
-    <input id="username" placeholder="Enter username..." />
-    <button onclick="joinChat()">Join</button>
-    <input id="message" placeholder="Type message... (supports emojis 😎)" style="display:none;" />
-    <button onclick="sendMessage()" style="display:none;">Send</button>
+    
+    <!-- Username join section (visible first) -->
+    <div id="join-section">
+      <input id="username" placeholder="Enter username..." autocomplete="off" />
+      <button id="join-btn">Join Chat</button>
+    </div>
+    
+    <!-- Message input section (hidden until joined) -->
+    <div id="input-section" style="display: none;">
+      <input id="message" placeholder="Type here... (emojis 😎 supported)" autocomplete="off" />
+      <button id="send-btn">Send</button>
+    </div>
   </div>
 
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
